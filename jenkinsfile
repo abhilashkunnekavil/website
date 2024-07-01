@@ -1,49 +1,42 @@
 pipeline {
    environment {
-     git_url = "https://github.com/abhilashkunnekavil/java-project.git"
+     git_url = "https://github.com/abhilashkunnekavil/website.git"
      git_branch = "master"
    }
 
-  agent {label 'dev'}
-  //agent any
+  agent {label 'k8s-master'}
   stages {
     stage('Pull Source') {
       steps {
-        git credentialsId: 'ea4acf3b-c4f9-46c2-b1b2-5dcf157947bd', branch: "${git_branch}", url: "${git_url}"
+        git credentialsId: '955c4479-5029-477e-8f56-abbeae3c4ce0', branch: "${git_branch}", url: "${git_url}"
        
       }
      }
-    
-    stage('Maven Build') {
-     steps { 
-          sh "mvn clean package && cp target/*.jar . "
-     }
-    }
      
      stage('Docker Image Build') {     
         steps {
-              sh 'sudo docker build -t myjava-image . '
+              sh 'sudo docker build -t myapache . '
                }
              }
         stage('Docker image push') {
            steps {
-                 withCredentials([usernamePassword(credentialsId: 'baf93b2a-ab25-416d-ac20-55ecbdc95b52', passwordVariable: 'Password', usernameVariable: 'Username')]) {
+                 withCredentials([usernamePassword(credentialsId: '0b344794-8cc2-4370-a57d-b294c07d15e2', passwordVariable: 'Password', usernameVariable: 'Username')]) {
                  sh "sudo docker login -u ${env.Username} -p ${env.Password}"
-                 sh "sudo docker image tag myjava-image salilkul87/myjava-image:test"
-                 sh "sudo docker image push salilkul87/myjava-image:test" 
+                 sh "sudo docker image tag myapache abhilashkunnekavil/myapache"
+                 sh "sudo docker image push abhilashkunnekavil/myapache" 
                } 
              }  
           }
-   //   stage('Deploy app') {
-   //      steps {
-    //        sh 'kubectl apply -f app-deploy.yaml'
-    //     }
-     // }
+      stage('Deploy app') {
+         steps {
+            sh 'kubectl apply -f app-deploy.yaml'
+         }
+      }
     }
 
-//  post {
-//    always {
-//      deleteDir() /* cleanup the workspace */
-//    }
-//  }
+  post {
+    always {
+      deleteDir() /* cleanup the workspace */
+    }
+  }
   }
