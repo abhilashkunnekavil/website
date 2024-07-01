@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apache2
+  name: apache2-app
 spec:
   replicas: 2
   selector:
@@ -9,7 +9,7 @@ spec:
       env: k8s-master
   template:
     metadata:
-      name: appache2-app-pod
+      name: appache2-app
       labels:
         env: k8s-master
     spec:
